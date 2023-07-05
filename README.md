@@ -31,12 +31,15 @@ Jira Issue Counter is a Python-based tool that provides monthly counts of Jira t
     pip3 install -r requirements.txt
     ```
 
+
 ## Usage
 
 To use the script, you will need to provide several command-line arguments. For example:
 
 ```bash
-python jira_ticket_analyzer.py --startdate 2023-01-01 --enddate 2023-06-30 --jirasubdomain myjira --assignees "user1","user2","user3" --projects "myproject1,myproject2" --searchtype all --output console --email myatlassianemail@example.com
+python jira_ticket_analyzer.py --startdate 2023-01-01 --enddate 2023-06-30 --jirasubdomain myjira --assignees "user1","user2","user3" --project myproject --searchtype all --output console --email myatlassianemail@example.com
+```
+Here is a breakdown of the arguments:
 
 Here is a breakdown of the arguments:
 
@@ -44,10 +47,11 @@ Here is a breakdown of the arguments:
 - `-e` / `--enddate`: The end date for the range of tickets to consider (YYYY-MM-DD).
 - `-u` / `--jirasubdomain`: Your Jira subdomain.
 - `-a` / `--assignees`: A comma-separated list of Jira usernames to consider.
-- `-p` / `--projects`: A comma-separated list of project names to consider.
+- `-p` / `--project`: A comma-separated list of project names to consider.
 - `-t` / `--searchtype`: The type of tickets to consider (options: `opened`, `closed`, `all`).
 - `-o` / `--output`: The type of output (options: `console`, `csv`).
 - `-m` / `--email`: The email to use for Jira authentication.
+
 
 ## Authentication
 
@@ -59,5 +63,6 @@ We welcome contributions to the Jira Ticket Analyzer. Please open an issue or su
 
 ## License
 
+This project is licensed under the terms of the MIT license.
 This project is licensed under the terms of the MIT license.
 
