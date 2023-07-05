@@ -15,7 +15,7 @@ def get_args():
     parser.add_argument("-e", "--enddate", required=True, help="End date")
     parser.add_argument("-u", "--jirasubdomain", required=True, help="Jira subdomain")
     parser.add_argument("-a", "--assignees", required=True, help="Assignee names, comma-separated")
-    parser.add_argument("-p", "--project", required=True, help="Project name")
+    parser.add_argument("-p", "--projects", required=True, help="Project names, comma-separated")
     parser.add_argument("-t", "--searchtype", required=True, help="Search type: opened, closed, all")
     parser.add_argument("-o", "--output", default="console", help="Output type: console, csv")
     parser.add_argument("-m", "--email", required=True, help="User email for authentication")
@@ -30,53 +30,59 @@ def get_monthly_counts(args):
     assignees = args.assignees.split(',')
     searchtype = args.searchtype
     output_type = args.output
-    project = args.project
+    projects = args.projects.split(',')
     dates = [dt for dt in rrule(MONTHLY, dtstart=startdate, until=enddate)]
     
-    if searchtype == 'opened':
-        table = PrettyTable()
-        table.field_names = ["User"] + [f'{date.strftime("%B")} Opened' for date in dates]
-    elif searchtype == 'closed':
-        table = PrettyTable()
-        table.field_names = ["User"] + [f'{date.strftime("%B")} Closed' for date in dates]
-    else:
-        table = PrettyTable()
-        table.field_names = ["User"] + [item for date in dates for item in [f'{date.strftime("%B")} Opened', f'{date.strftime("%B")} Closed']]
-
-    data = []
-
     headers = {
        "Accept": "application/json",
        "Authorization": f"Basic {base64.b64encode(f'{email}:{api_token}'.encode()).decode()}"
     }
+    
+    for project in projects:
+        if searchtype == 'opened':
+            table = PrettyTable()
+            table.field_names = ["User"] + [f'{date.strftime("%B")} Opened' for date in dates]
+        elif searchtype == 'closed':
+            table = PrettyTable()
+            table.field_names = ["User"] + [f'{date.strftime("%B")} Closed' for date in dates]
+        else:
+            table = PrettyTable()
+            table.field_names = ["User"] + [item for date in dates for item in [f'{date.strftime("%B")} Opened', f'{date.strftime("%B")} Closed']]
 
-    for assignee in assignees:
-        row = [assignee]
-        for date in dates:
-            jql_opened = f'project={project} AND assignee="{assignee}" AND created>={date.strftime("%Y-%m-%d")} AND created<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
-            jql_closed = f'project={project} AND assignee="{assignee}" AND resolved>={date.strftime("%Y-%m-%d")} AND resolved<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
-            if searchtype in ['all', 'opened']:
-                row.append(get_ticket_count(jql_opened, headers, base_url))
-            if searchtype in ['all', 'closed']:
-                row.append(get_ticket_count(jql_closed, headers, base_url))
-        data.append(row)
+        data = []
 
-    for row in data:
-        table.add_row(row)
+        for assignee in assignees:
+            row = [assignee]
+            for date in dates:
+                jql_opened = f'project={project} AND assignee="{assignee}" AND created>={date.strftime("%Y-%m-%d")} AND created<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
+                jql_closed = f'project={project} AND assignee="{assignee}" AND resolved>={date.strftime("%Y-%m-%d")} AND resolved<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
+                if searchtype in ['all', 'opened']:
+                    row.append(get_ticket_count(jql_opened, headers, base_url))
+                if searchtype in ['all', 'closed']:
+                    row.append(get_ticket_count(jql_closed, headers, base_url))
+            data.append(row)
 
-    if output_type == 'console':
-        print(table)
-    elif output_type == 'csv':
-        df = pd.DataFrame(data, columns=table.field_names)
-        filename = f"{args.startdate}-{args.enddate}-{args.searchtype}.csv"
-        df.to_csv(filename, index=False)
-        print(f"Results saved to {filename}")
+        for row in data:
+            table.add_row(row)
+
+        if output_type == 'console':
+            print(f"\nResults for project: {project}")
+            print(table)
+        elif output_type == 'csv':
+            df = pd.DataFrame(data, columns=table.field_names)
+            filename = f"{project}-{args.startdate}-{args.enddate}-{args.searchtype}.csv"
+            df.to_csv(filename, index=False)
+            print(f"Results saved to {filename}")
 
 def get_ticket_count(jql, headers, base_url):
     query = {'jql': jql}
     response = requests.get(base_url, headers=headers, params=query)
     data = response.json()
-    return data['total']
+    if 'total' in data:
+        return data['total']
+    else:
+        print(f"Unexpected data returned from the API: {data}")
+        return 0
 
 if __name__ == "__main__":
     args = get_args()
