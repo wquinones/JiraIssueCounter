@@ -20,7 +20,7 @@ Jira Issue Counter is a Python-based tool that provides monthly counts of Jira t
 
 1. Clone the repository to your local machine:
     ```bash
-    git clone https://github.com/yourusername/jira-ticket-analyzer.git
+    git clone https://github.com/wquinones/jira-ticket-analyzer.git
     ```
 2. Navigate to the cloned repository:
     ```bash
