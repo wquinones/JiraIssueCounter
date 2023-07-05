@@ -37,7 +37,7 @@ Jira Issue Counter is a Python-based tool that provides monthly counts of Jira t
 To use the script, you will need to provide several command-line arguments. For example:
 
 ```bash
-python jira_ticket_analyzer.py --startdate 2023-01-01 --enddate 2023-06-30 --jirasubdomain myjira --assignees "user1","user2","user3" --project myproject --searchtype all --output console --email myatlassianemail@example.com
+python JiraIssueCounter.py --startdate 2023-01-01 --enddate 2023-06-30 --jirasubdomain myjira --assignees "user1","user2","user3" --project myproject --searchtype all --output console --email myatlassianemail@example.com
 ```
 Here is a breakdown of the arguments:
 
@@ -57,12 +57,7 @@ Here is a breakdown of the arguments:
 
 This script uses basic authentication with your Jira API token. Make sure you have your Jira API token saved as an environment variable named `JIRA_API_TOKEN` before running the script.
 
-## Contributing
-
-We welcome contributions to the Jira Ticket Analyzer. Please open an issue or submit a pull request if you would like to contribute.
-
 ## License
 
-This project is licensed under the terms of the MIT license.
 This project is licensed under the terms of the MIT license.
 
