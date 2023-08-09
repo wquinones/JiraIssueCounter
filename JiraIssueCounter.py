@@ -14,7 +14,7 @@ def get_args():
     parser.add_argument("-s", "--startdate", required=True, help="Start date")
     parser.add_argument("-e", "--enddate", required=True, help="End date")
     parser.add_argument("-u", "--jirasubdomain", required=True, help="Jira subdomain")
-    parser.add_argument("-a", "--assignees", required=True, help="Assignee names, comma-separated")
+    parser.add_argument("-r", "--reporters", required=True, help="Reporter names, comma-separated")
     parser.add_argument("-p", "--projects", required=True, help="Project names, comma-separated")
     parser.add_argument("-t", "--searchtype", required=True, help="Search type: opened, closed, all")
     parser.add_argument("-o", "--output", default="console", help="Output type: console, csv")
@@ -27,7 +27,7 @@ def get_monthly_counts(args):
     startdate = datetime.strptime(args.startdate, '%Y-%m-%d')
     enddate = datetime.strptime(args.enddate, '%Y-%m-%d')
     base_url = f"https://{args.jirasubdomain}.atlassian.net/rest/api/2/search"
-    assignees = args.assignees.split(',')
+    reporters = args.reporters.split(',')
     searchtype = args.searchtype
     output_type = args.output
     projects = args.projects.split(',')
@@ -51,11 +51,11 @@ def get_monthly_counts(args):
 
         data = []
 
-        for assignee in assignees:
-            row = [assignee]
+        for reporter in reporters:
+            row = [reporter]
             for date in dates:
-                jql_opened = f'project={project} AND assignee="{assignee}" AND created>={date.strftime("%Y-%m-%d")} AND created<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
-                jql_closed = f'project={project} AND assignee="{assignee}" AND resolved>={date.strftime("%Y-%m-%d")} AND resolved<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
+                jql_opened = f'project={project} AND reporter="{reporter}" AND created>={date.strftime("%Y-%m-%d")} AND created<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
+                jql_closed = f'project={project} AND reporter="{reporter}" AND resolved>={date.strftime("%Y-%m-%d")} AND resolved<{(date+relativedelta(months=+1)).strftime("%Y-%m-%d")}'
                 if searchtype in ['all', 'opened']:
                     row.append(get_ticket_count(jql_opened, headers, base_url))
                 if searchtype in ['all', 'closed']:
