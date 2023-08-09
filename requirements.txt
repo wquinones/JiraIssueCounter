@@ -3,3 +3,5 @@ pandas
 PrettyTable
 python-dateutil
 argparse
+os
+base64
